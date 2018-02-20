@@ -1,0 +1,631 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MyPhoneCRMIntegration</name>
+    </assembly>
+    <members>
+        <member name="T:MyPhonePlugins.CallInfoHandler">
+            <summary>
+            handler of <see cref="E:MyPhonePlugins.IMyPhoneCallHandler.OnCallStatusChanged"/> event
+            </summary>
+            <param name="sender">implementation of IMyPhoneCallHandler and IExtensionInfo interfaces which was provided to plugin Loader. See remarks of <see cref="T:MyPhonePlugins.IMyPhoneCallHandler"/> and <see cref="T:MyPhonePlugins.IExtensionInfo"/></param>
+            <param name="callInfo">new status of a call</param>
+        </member>
+        <member name="T:MyPhonePlugins.MyPhoneStatusHandler">
+            <summary>
+            handler of <see cref="E:MyPhonePlugins.IMyPhoneCallHandler.OnMyPhoneStatusChanged"/> event
+            </summary>
+            <param name="sender">implementation of IMyPhoneCallHandler and IExtensionInfo interfaces which was provided to plugin Loader. See remarks of <see cref="T:MyPhonePlugins.IMyPhoneCallHandler"/> and <see cref="T:MyPhonePlugins.IExtensionInfo"/></param>
+            <param name="status">status of the MyPhone application</param>
+        </member>
+        <member name="T:MyPhonePlugins.ProfileExtendedStatusChangedEventArgs">
+            <summary>
+            Arguments for changed profile status message
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.ProfileExtendedStatusChangedEventArgs.ProfileId">
+            <summary>
+            Id of profile whose status message was changed
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.ProfileExtendedStatusChangedEventArgs.Status">
+            <summary>
+            New value of status message
+            </summary>
+        </member>
+        <member name="M:MyPhonePlugins.ProfileExtendedStatusChangedEventArgs.#ctor(System.Int32,System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="profileId">Id of profile whose status message was changed</param>
+            <param name="status">New value of status message</param>
+        </member>
+        <member name="T:MyPhonePlugins.CurrentProfileChangedEventArgs">
+            <summary>
+            Current profile changed
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CurrentProfileChangedEventArgs.OldProfileId">
+            <summary>
+            Old active profile id
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CurrentProfileChangedEventArgs.NewProfileId">
+            <summary>
+            New active profile id
+            </summary>
+        </member>
+        <member name="M:MyPhonePlugins.CurrentProfileChangedEventArgs.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="oldProfileId">Old active profile id</param>
+            <param name="newProfileId">New active profile id</param>
+        </member>
+        <member name="T:MyPhonePlugins.CRMPluginLoaderAttribute">
+            <summary>
+            Attribute which marks LOADER of the plugin
+            See remarks of <see cref="T:MyPhonePlugins.IMyPhoneCallHandler"/>
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.CRMPluginInitializerAttribute">
+            <summary>
+            Attribute which marks Initializer method of plugin 
+            See remarks of <see cref="T:MyPhonePlugins.IMyPhoneCallHandler"/>
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.CRMPluginDisposeAttribute">
+            <summary>
+            Attribute which marks Dispose method of plugin 
+            See remarks of <see cref="T:MyPhonePlugins.IMyPhoneCallHandler"/>
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.TargetEdition">
+            <summary>
+            Target editions of PBX. (bitmask)
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.TargetEdition.Demo">
+            <summary>
+            Demo edition
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.TargetEdition.Standard">
+            <summary>
+            Standard edition
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.TargetEdition.Pro">
+            <summary>
+            Pro Edition
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.CRMTargetEditionAttribute">
+            <summary>
+            Attribute which may specify the target Edition of PBX which should interoperate with plugin
+            MUST be used only as an "Assembly attribute".
+            Other targets are reserved for future use.
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CRMTargetEditionAttribute.Target">
+            <summary>
+            License Mask
+            </summary>
+        </member>
+        <member name="M:MyPhonePlugins.CRMTargetEditionAttribute.#ctor(MyPhonePlugins.TargetEdition)">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.CallState">
+            <summary>
+            State of the call
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.CallState.Undefined">
+            <summary>
+            Undefined state. Such calls are not valid
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.CallState.Ringing">
+            <summary>
+            Incoming call is ringing on user's phone. Call is not yet answered by the user
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.CallState.Dialing">
+            <summary>
+            Outbound call initiated from user's phone. Call is not yet answered by remote party 
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.CallState.Connected">
+            <summary>
+            Call is established. User is talking with other party
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.CallState.WaitingForNewParty">
+            <summary>
+            Call is rerouted. User waits for the answer form new party
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.CallState.TryingToTransfer">
+            <summary>
+            User is transferring call to new destination. After successful transfer user will be disconnected from the call.
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.CallState.Ended">
+            <summary>
+            Call has been disconnected
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.MyPhoneStatus">
+            <summary>
+            Status of MyPhoneApplication
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.MyPhoneStatus.NoConnection">
+            <summary>
+            MyPhone Application lost the connection to the server
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.MyPhoneStatus.LoggedIn">
+            <summary>
+            User is logged in
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.MyPhoneStatus.LoggedOut">
+            <summary>
+            User is logged out.
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.OriginatorType">
+            <summary>
+            Type of originator
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.None">
+            <summary>
+            No originator
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.Queue">
+            <summary>
+            Call is coming from the queue
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.RingGroup">
+            <summary>
+            Call is coming throug ringgroup
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.Extension">
+            <summary>
+            other extension is transfering the call
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.Ivr">
+            <summary>
+            Ivr delivers the call.
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.Conference">
+            <summary>
+            Call is coming from conference gateway
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.ParkingPlace">
+            <summary>
+            remimder from parking orbit
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.Fax">
+            <summary>
+            Fax extension
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.ExternalLine">
+            <summary>
+            External line
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.OriginatorType.SpecialMenu">
+            <summary>
+            SpecialMenu (Voice mail manager)
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.UserProfileStatus">
+            <summary>
+            Information on user profile
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.UserProfileStatus.IsActive">
+            <summary>
+            Is profile currently active
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.UserProfileStatus.ProfileId">
+            <summary>
+            Profile id
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.UserProfileStatus.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.UserProfileStatus.CustomName">
+            <summary>
+            Custom profile name
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.UserProfileStatus.ExtendedStatus">
+            <summary>
+            Extended status message
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.CallStatus">
+            <summary>
+            Information about call
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.CallID">
+            <summary>
+            ID of the local connection.
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.Incoming">
+            <summary>
+            true if call is incoming, false - if not
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.State">
+            <summary>
+            State of the call
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.OtherPartyNumber">
+            <summary>
+            Remote party number.
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.OtherPartyName">
+            <summary>
+            Name of the remote party. Usually it is DisplayName of the Callee/Caller provided by PBX
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.OriginatorType">
+            <summary>
+            Originator - is entity which is distributing(queue/ringgroup) or transfering the call. (incoming only)
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.Originator">
+            <summary>
+            internal id of the originator (DN)
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.OriginatorName">
+            <summary>
+            Name of the originator
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.IsHold">
+            <summary>
+            The call was put on hold
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.CallStatus.IsMuted">
+            <summary>
+            The call was muted
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.IExtensionInfo">
+            <summary>
+            sender of <see cref="E:MyPhonePlugins.IMyPhoneCallHandler.OnCallStatusChanged"/> and <see cref="E:MyPhonePlugins.IMyPhoneCallHandler.OnMyPhoneStatusChanged"/>
+            can implement this interface to specify Extension which is owner of the call or logged in/logged out on My phone client side
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.IExtensionInfo.Number">
+            <summary>
+            Extension number
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.IExtensionInfo.FirstName">
+            <summary>
+            First name of the user
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.IExtensionInfo.LastName">
+            <summary>
+            Last name of the user
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.MakeCallOptions">
+            <summary>
+            Additional options for MakeCallEx
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.MakeCallOptions.None">
+            <summary>
+            No options
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.MakeCallOptions.WithVideo">
+            <summary>
+             Make video call. Unsupported in CTI mode
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.MakeCallOptions.DialOnly">
+            <summary>
+            Copy a number to dialer without making a call
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.MakeCallOptions.SkypeForBusiness">
+            <summary>
+            Make call by using Skype for Business contact
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.ActivateOptions">
+            <summary>
+            Additional options for ActivateEx
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.ActivateOptions.None">
+            <summary>
+            No options
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.ActivateOptions.WithVideo">
+            <summary>
+            Answer call with video. Unsupported in CTI mode
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.ShowOptions">
+            <summary>
+            Additional options for show
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.ShowOptions.None">
+            <summary>
+            No options
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.Views">
+            <summary>
+            View to show
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.Views.DialPad">
+            <summary>
+            Dialpad
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.Views.Presence">
+            <summary>
+            Presence
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.Views.Contacts">
+            <summary>
+            Contacts
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.Views.CallHistory">
+            <summary>
+            Call history
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.Views.Voicemails">
+            <summary>
+            Voicemails
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.Views.Conferences">
+            <summary>
+            Conferences
+            </summary>
+        </member>
+        <member name="F:MyPhonePlugins.Views.Chats">
+            <summary>
+            Chat
+            </summary>
+        </member>
+        <member name="T:MyPhonePlugins.IMyPhoneCallHandler">
+            <summary>
+            Interface provided by MyPhone application for CRM integration plugins.
+            </summary>
+            <remarks>
+            Plugins for the MyPhone application are loaded dynamically<br/>
+            Plugin must provide at least one LOADER.<br/>
+            The LOADER is a public class with <see cref="T:MyPhonePlugins.CRMPluginLoaderAttribute"/> attribute.
+            The LOADER must define public static method with <see cref="T:MyPhonePlugins.CRMPluginInitializerAttribute"/> and receive implementation of <see cref="T:MyPhonePlugins.IMyPhoneCallHandler"/> interface.<br/>
+            Plugin can define more then one LOADER. MyPhone application will initialize all LOADERs defined in plugin<br/>
+            The object provided to all LOADERs may be singleton and it is the same for all plugins (shared object).<br/>
+            events are delivered synchronously, so event handlers should return control to the event source as soon as possible.
+            Example of LOADER:
+            <code>
+            [MyPhonePlugins.CRMPluginLoader]
+            public class mypluginloader
+            {
+                [MyPhonePlugins.CRMPluginInitializer]
+                public static void myplugin_initializer(IMyPhoneCallHandler myPhoneCallHandler)
+                {
+                    //Initialization of plugin
+                }
+                
+                //implementation specific code and variables
+            }
+            </code>
+            myplugin_initializer method will be called by the MyPhone application which provides CRM intergration interface<br/>
+            </remarks>
+        </member>
+        <member name="E:MyPhonePlugins.IMyPhoneCallHandler.OnCallStatusChanged">
+            <summary>
+            Delivers information about calls.
+            </summary>
+            <remarks>
+            Plugin can subscribe for this event to receive online information about user's status and calls
+            <seealso cref="T:MyPhonePlugins.CallInfoHandler"/>
+            </remarks>
+        </member>
+        <member name="E:MyPhonePlugins.IMyPhoneCallHandler.CurrentProfileChanged">
+            <summary>
+            Called when current profile changed
+            </summary>
+        </member>
+        <member name="E:MyPhonePlugins.IMyPhoneCallHandler.ProfileExtendedStatusChanged">
+            <summary>
+            Called when profile extended status changes
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.IMyPhoneCallHandler.ActiveCalls">
+            <summary>
+            provides information about all known user's calls
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.IMyPhoneCallHandler.Profiles">
+            <summary>
+            provides information about possible user profiles
+            </summary>
+        </member>
+        <member name="P:MyPhonePlugins.IMyPhoneCallHandler.Status">
+            <summary>
+            current status of IMyPhoneCallHandler
+            </summary>
+        </member>
+        <member name="E:MyPhonePlugins.IMyPhoneCallHandler.OnMyPhoneStatusChanged">
+            <summary>
+            Delivers status of IMyPhoneCallHandler
+            </summary>
+            <remarks>
+            <seealso cref="T:MyPhonePlugins.MyPhoneStatusHandler"/>
+            </remarks>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.MakeCall(System.String)">
+            <summary>
+            Request to make a call. Plugin can use this methos to initialize the call.
+            </summary>
+            <param name="destination">the number to call from user's phone</param>
+            <returns>
+            CallInfo of the initialized call or null.
+            </returns>
+            <remarks>
+            Behavior of this method is not predefined. it depends on on the concrete implementation of the MyPhone client.
+            </remarks>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.MakeCall(System.String,MyPhonePlugins.MakeCallOptions)">
+            <summary>
+            Request to make a call. Plugin can use this methos to initialize the call.
+            </summary>
+            <param name="destination">the number to call from user's phone</param>
+            <param name="options">additional call options</param>
+            <returns>
+            CallInfo of the initialized call or null.
+            </returns>
+            <remarks>
+            Behavior of this method is not predefined. it depends on on the concrete implementation of the MyPhone client.
+            </remarks>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.DropCall(System.String)">
+            <summary>
+            Request to MyPhone to drop the call
+            </summary>
+            <param name="callId">the ID of the call to drop</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.BlindTransfer(System.String,System.String)">
+            <summary>
+            Blindly transfer callId to destination.
+            This function will throw an exception in case of detected error but generally it runs asynchronously
+            </summary>
+            <param name="callId">Call id</param>
+            <param name="destination">the number to transfer call to</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.Hold(System.String,System.Boolean)">
+            <summary>
+            Hold/Resume a call. Call should be activated before using this function otherwise
+            function will fail.
+            </summary>
+            <param name="callId">Call to control</param>
+            <param name="holdOn">True to put a call on hold</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.Mute(System.String)">
+            <summary>
+            Mute/unmute a call. Call should be activated before using this function otherwise
+            function will fail.
+            </summary>
+            <param name="callId">Call to control</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.SendDTMF(System.String,System.String)">
+            <summary>
+            Send dtmf to a call. Call should be activated before using this function otherwise
+            function will fail.
+            </summary>
+            <param name="callId">Call to control</param>
+            <param name="dtmf">DTMF characters to send</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.SetQueueLoginStatus(System.Boolean)">
+            <summary>
+            Queue login/logout
+            </summary>
+            <param name="loggedIn">True to login, false to logout</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.BeginTransfer(System.String,System.String)">
+            <summary>
+            Make consulted call to destination for callId and return it's status.
+            This function will throw an exception in case of detected error but generally it runs asynchronously
+            </summary>
+            <param name="callId">Call id of original call</param>
+            <param name="destination">the number to transfer call to</param>
+            <returns>Consulted call id or null on error</returns>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.CancelTransfer(System.String)">
+            <summary>
+            Drop consulted call and activate "callId" if needed.
+            This function will throw an exception in case of detected error but generally it runs asynchronously
+            </summary>
+            <param name="callId">Original call id</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.CompleteTransfer(System.String)">
+            <summary>
+            Transfer "callId" to corresponding consulted call.
+            This function will throw an exception in case of detected error but generally it runs asynchronously
+            </summary>
+            <param name="callId">Original or consulted call id</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.Activate(System.String)">
+            <summary>
+            Switch audio to callId. If the call is not answered it will be answered automatically. Use this function to answer calls.
+            This function will throw an exception in case of detected error but generally it runs asynchronously
+            </summary>
+            <param name="callId">Call id to activate</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.ActivateEx(System.String,MyPhonePlugins.ActivateOptions)">
+            <summary>
+            Switch audio to callId. If the call is not answered it will be answered automatically. Use this function to answer calls.
+            This function will throw an exception in case of detected error but generally it runs asynchronously
+            </summary>
+            <param name="callId">Call id to activate</param>
+            <param name="options">Additional options</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.SetActiveProfile(System.Int32)">
+            <summary>
+            Set active profile. 
+            This is a synchronous function which will throw an exception in case of any client or server side error
+            </summary>
+            <param name="ProfileId">Profile id to activate</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.SetProfileExtendedStatus(System.Int32,System.String)">
+            <summary>
+            Set profile extended status message.
+            This is a synchronous function which will throw an exception in case of any client or server side error
+            </summary>
+            <param name="ProfileId">Profile id</param>
+            <param name="status">Status message to set</param>
+        </member>
+        <member name="M:MyPhonePlugins.IMyPhoneCallHandler.Show(MyPhonePlugins.Views,MyPhonePlugins.ShowOptions)">
+            <summary>
+            Bring window to front and show a specific view
+            </summary>
+            <param name="view">View to show</param>
+            <param name="options">Additional options</param>
+        </member>
+    </members>
+</doc>
