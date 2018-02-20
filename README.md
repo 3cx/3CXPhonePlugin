@@ -1,4 +1,4 @@
-# 3CXCallTriggerPlugin
+# 3CXPhonePlugin
 
 The 3CXPhone for Windows Plugin API is designed to allow customers and developers to easily integrate the applications they use with the 3CXPhone client for Windows. The 3CXPhone for Windows API gives you the opportunity to launch and control calls and collect call notifications.
 
